@@ -8,6 +8,10 @@ A local web GUI for [Pake](https://github.com/tw93/Pake): turn any website into 
 
 Builds run one at a time from a queue, each build is kept in a history you can reopen, builds work offline after the first install, and you can pair a phone to send it links. It runs on your machine at 127.0.0.1 only.
 
+<!-- live-links -->
+**Project page:** [gitguy268.github.io/web2app](https://gitguy268.github.io/web2app/) · [web2app-neon.vercel.app](https://web2app-neon.vercel.app)
+<!-- /live-links -->
+
 <!-- run-steps:start -->
 ## Run it locally, step by step
 
