@@ -1,0 +1,15 @@
+web2app
+Copyright (C) 2026 Lucas Van De Weerd
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See LICENSE.
+
+Third-party parts:
+- Pake by Tw93 and the Pake contributors (https://github.com/tw93/Pake),
+  GPL-3.0-or-later. web2app runs the pake-cli package to build apps. The
+  popular-apps list in public/presets.json is based on Pake's app list.
+  web2app is not made by or affiliated with the Pake project.
+- QR Code generator by Kazuhiko Arase (public/vendor/qrcode.js), MIT.
+- The preset sites' names belong to their owners.

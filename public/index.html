@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>web2app</title>
+  <meta name="description" content="Turn any website or your own HTML files into a small Mac app, built with Pake on your Mac.">
+  <meta name="theme-color" content="#F5F4ED" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1E1D1B" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="web2app">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app.css">
+  <script src="vendor/qrcode.js" defer></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <p class="file-warning" id="fileWarning" hidden>
+    This page needs its small local server. Close it, double-click <b>start.command</b> in the web2app folder, and use the page that opens.
+  </p>
+  <script>if (location.protocol === 'file:') document.getElementById('fileWarning').hidden = false;</script>
+
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="#top"><img src="icon.svg" alt="" width="28" height="28">web2app</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#build">Build</a>
+        <a href="#history">History</a>
+        <a href="#help">Help</a>
+      </nav>
+      <a class="queue-pill" id="queuePill" href="#progress" hidden></a>
+      <button class="btn btn-sm" id="phoneBtn" type="button" hidden>Use on phone</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <h1>Turn any website into a Mac app.</h1>
+      <p class="tagline">web2app builds a small, fast Mac app from a web address or from your own HTML files, right on this Mac. Most apps are under 10 MB.</p>
+      <p class="problem" id="rustWarning" hidden>Rust isn't installed, so builds will fail. Install it from <a href="https://rustup.rs">rustup.rs</a>, then restart web2app.</p>
+      <h2 class="presets-title">Start from a popular app</h2>
+      <div class="preset-row" id="presets"></div>
+    </section>
+
+    <section class="builder wrap" id="build" aria-label="Build an app">
+      <form class="card form" id="form" novalidate>
+        <div class="seg" role="radiogroup" aria-label="What to turn into an app">
+          <label><input type="radio" name="source" value="url" checked><span>A website</span></label>
+          <label><input type="radio" name="source" value="files"><span>Files on this device</span></label>
+        </div>
+
+        <div id="urlBlock">
+          <label class="field">
+            <span>Website address</span>
+            <input name="url" type="url" placeholder="https://music.youtube.com" autocomplete="url" autocapitalize="off" spellcheck="false" required>
+          </label>
+        </div>
+
+        <div id="filesBlock" hidden>
+          <div class="drop" id="drop">
+            <p class="drop-title" id="dropTitle">Drop a folder with an index.html here</p>
+            <div class="drop-actions">
+              <label class="btn btn-sm" id="folderPick">Choose a folder<input type="file" id="folderInput" webkitdirectory multiple></label>
+              <label class="btn btn-sm">Choose an .html or .zip<input type="file" id="fileInput" accept=".html,.htm,.zip"></label>
+            </div>
+            <p class="hint" id="filesHint">The finished app works without internet.</p>
+          </div>
+        </div>
+
+        <div class="row name-row">
+          <label class="field grow">
+            <span>App name</span>
+            <input name="name" maxlength="60" placeholder="YouTube Music" required>
+          </label>
+          <div class="field">
+            <span id="iconLabel">Icon</span>
+            <label class="icon-pick" title="Choose an icon">
+              <input type="file" id="iconInput" accept=".png,.icns,.ico,.jpg,.jpeg" aria-labelledby="iconLabel">
+              <img id="iconThumb" alt="" hidden>
+              <span class="icon-plus" id="iconPlus" aria-hidden="true">+</span>
+            </label>
+          </div>
+        </div>
+        <p class="hint" id="iconHint">Leave the icon empty to use the site's own icon.</p>
+
+        <fieldset>
+          <legend>Window</legend>
+          <div class="row">
+            <label class="field"><span>Width</span><input name="width" type="number" min="200" max="7680" value="1200" inputmode="numeric"></label>
+            <label class="field"><span>Height</span><input name="height" type="number" min="200" max="4320" value="780" inputmode="numeric"></label>
+            <label class="field"><span>Zoom %</span><input name="zoom" type="number" min="50" max="200" step="10" value="100" inputmode="numeric"></label>
+          </div>
+          <div class="checks">
+            <label><input type="checkbox" name="hideTitleBar"> Hide the title bar</label>
+            <label><input type="checkbox" name="maximize"> Open maximized</label>
+            <label><input type="checkbox" name="fullscreen"> Open full screen</label>
+            <label><input type="checkbox" name="alwaysOnTop"> Stay on top of other windows</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Behavior</legend>
+          <div class="checks">
+            <label><input type="checkbox" name="darkMode"> Always use dark mode</label>
+            <label><input type="checkbox" name="showSystemTray"> Show an icon in the menu bar</label>
+            <label><input type="checkbox" name="enableFind"> Find in page with ⌘F</label>
+            <label><input type="checkbox" name="newWindow"> Let the site open new windows, for sign-in pop-ups</label>
+            <label><input type="checkbox" name="forceInternalNavigation"> Keep every link inside the app</label>
+            <label><input type="checkbox" name="incognito"> Private mode, nothing is remembered after quitting</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Customize</legend>
+          <label class="field"><span>Custom CSS</span>
+            <textarea name="css" rows="3" spellcheck="false" autocapitalize="off" placeholder="/* Hide the cookie banner */&#10;.cookie-banner { display: none; }"></textarea>
+          </label>
+          <label class="field"><span>Custom JavaScript</span>
+            <textarea name="js" rows="3" spellcheck="false" autocapitalize="off" placeholder="// Runs on every page the app opens&#10;document.title = 'My app';"></textarea>
+          </label>
+          <p class="hint">Both are added to every page the app opens.</p>
+        </fieldset>
+
+        <fieldset id="resultSet">
+          <legend>Result</legend>
+          <div class="checks">
+            <label class="choice"><input type="radio" name="output" value="dmg" checked><span>Disk image (.dmg)<small>One file you can keep or send to someone</small></span></label>
+            <label class="choice"><input type="radio" name="output" value="app"><span>App (.app)<small>Ready to open, a little faster to build</small></span></label>
+            <label class="choice"><input type="radio" name="output" value="install"><span>Install in Applications<small>Builds the app and moves it to /Applications on the Mac</small></span></label>
+            <label><input type="checkbox" name="multiArch"> Make it run on both Intel and Apple silicon Macs</label>
+          </div>
+        </fieldset>
+
+        <details class="more">
+          <summary>More options</summary>
+          <div class="row">
+            <label class="field"><span>Minimum width</span><input name="minWidth" type="number" min="0" max="7680" placeholder="None" inputmode="numeric"></label>
+            <label class="field"><span>Minimum height</span><input name="minHeight" type="number" min="0" max="4320" placeholder="None" inputmode="numeric"></label>
+          </div>
+          <div class="row">
+            <label class="field"><span>Version</span><input name="appVersion" placeholder="1.0.0" spellcheck="false" autocapitalize="off"></label>
+            <label class="field grow"><span>Shortcut to bring it forward</span><input name="activationShortcut" placeholder="CmdOrControl+Shift+P" spellcheck="false" autocapitalize="off"></label>
+          </div>
+          <label class="field"><span>Domains kept inside the app</span><input name="safeDomain" placeholder="okta.com, slack.com" spellcheck="false" autocapitalize="off"></label>
+          <label class="field"><span>User agent</span><input name="userAgent" placeholder="The system default" spellcheck="false" autocapitalize="off"></label>
+          <div class="checks">
+            <label><input type="checkbox" name="debug"> Include developer tools</label>
+          </div>
+        </details>
+
+        <div class="command">
+          <code id="command">pake</code>
+          <button type="button" class="btn btn-sm" id="copyBtn">Copy</button>
+        </div>
+        <p class="hint">The command web2app runs, if you'd rather use Terminal.</p>
+
+        <p class="problem" id="formError" role="alert" hidden></p>
+        <div class="build-bar">
+          <button class="btn btn-primary btn-block" id="buildBtn" type="submit">Build app</button>
+        </div>
+      </form>
+
+      <aside class="side">
+        <div class="device">
+          <div class="screen" id="screen" data-mode="window">
+            <div class="menubar"><b id="menuName">Your app</b><span>File</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span></div>
+            <div class="desk">
+              <div class="win" id="win">
+                <div class="titlebar"><i></i><i></i><i></i><span id="winTitle">Your app</span></div>
+                <div class="page">
+                  <img class="site-icon" id="pageIcon" alt="" hidden>
+                  <span class="letter" id="pageLetter">?</span>
+                  <b id="pageHost">Your website</b>
+                  <small id="pagePath"></small>
+                </div>
+              </div>
+            </div>
+            <div class="dock" aria-hidden="true">
+              <i></i><i></i><i></i><i></i>
+              <span class="tile" id="tile"><img id="tileIcon" alt="" hidden><span class="letter" id="tileLetter">?</span></span>
+            </div>
+          </div>
+        </div>
+        <p class="caption" id="caption">A 1200 × 780 window on a 1512 × 982 Mac screen.</p>
+
+        <section class="progress card" id="progress" hidden aria-label="Build progress">
+          <div class="progress-head">
+            <h2 id="buildTitle" aria-live="polite"></h2>
+            <span class="elapsed" id="elapsed"></span>
+            <button type="button" class="btn btn-sm" id="cancelBtn">Cancel</button>
+          </div>
+          <p class="hint" id="firstNote">The first build downloads Pake's parts and can take 5 to 10 minutes. Later builds take a few minutes.</p>
+          <p class="problem" id="buildError" hidden></p>
+          <ul class="outputs" id="outputs"></ul>
+          <details class="term" id="logWrap" open>
+            <summary><i></i><i></i><i></i><span>Build log</span></summary>
+            <pre class="log" id="log" tabindex="0"></pre>
+          </details>
+          <div id="queueBlock" hidden>
+            <h3 class="queue-title">Waiting</h3>
+            <ol class="queue" id="queueList"></ol>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="section wrap" id="history">
+      <h2 class="section-title">History</h2>
+      <p class="section-lede">Every app built here. The files stay in the web2app/builds folder on the Mac.</p>
+      <p class="problem" id="historyError" hidden></p>
+      <ul class="history" id="historyList"></ul>
+      <p class="empty" id="historyEmpty" hidden>Nothing built yet. Pick a popular app above or type an address to make your first one.</p>
+    </section>
+
+    <section class="section wrap faq" id="help">
+      <h2 class="section-title">Help</h2>
+      <details>
+        <summary>Does it work without internet?</summary>
+        <p>Yes, after the very first build. That build downloads Pake's parts once, and later builds reuse them from this Mac. Apps made from your own files work offline too. An app made from a web address still needs internet to show that website.</p>
+      </details>
+      <details>
+        <summary>Can I use it from my phone?</summary>
+        <p>Choose “Use on phone” on the Mac, then scan the code with your phone's camera and type the 6 digits. The phone has to be on the same Wi-Fi. Builds still run on the Mac, and “Open on Mac” opens the finished app there. The first time, macOS may ask whether node can accept incoming connections. Choose Allow. If the phone can't load the page, open System Settings, then Network, then Firewall, then Options, and set node to allow incoming connections. macOS asks again after every Node.js update.</p>
+      </details>
+      <details>
+        <summary>Why does the first build take so long?</summary>
+        <p>Pake compiles a small Rust program for your app. The first time, it downloads and compiles everything it needs, which takes 5 to 10 minutes. Later builds reuse that work and take a few minutes.</p>
+      </details>
+      <details>
+        <summary>Where are my apps?</summary>
+        <p>In the builds folder inside web2app, one folder per build. Use “Show in Finder” in the history to jump there. Apps installed in Applications are moved to /Applications.</p>
+      </details>
+      <details>
+        <summary>What can I put in custom CSS and JavaScript?</summary>
+        <p>Anything a browser extension could add: hide banners, change fonts, add keyboard shortcuts. web2app saves them as inject.css and inject.js and Pake adds them to every page the app opens.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <div class="foot-mark">
+        <span class="foot-brand">web2app</span>
+        <p>A local interface for <a href="https://github.com/tw93/Pake">Pake</a> by Tw93, which is GPL-3.0 licensed. web2app is not made by or affiliated with the Pake project.</p>
+      </div>
+      <p class="foot-meta" id="footMeta">Runs on this Mac</p>
+    </div>
+  </footer>
+
+  <dialog class="dialog" id="phoneDialog" aria-labelledby="phoneTitle">
+    <form method="dialog" class="dialog-close"><button class="btn btn-sm" aria-label="Close">Close</button></form>
+    <h2 id="phoneTitle">Use web2app on your phone</h2>
+    <p>Your phone has to be on the same Wi-Fi as this Mac. Builds still run here, so keep the Mac awake.</p>
+    <div id="phoneOff">
+      <button class="btn btn-primary btn-block" id="phoneOn" type="button">Turn on phone access</button>
+      <p class="hint">macOS may ask whether node can accept incoming connections. Choose Allow.</p>
+    </div>
+    <div id="phoneOnBlock" hidden>
+      <div class="qr" id="qr"></div>
+      <p class="phone-url" id="phoneUrl"></p>
+      <p class="phone-code-label">Code to type on the phone</p>
+      <p class="phone-code" id="phoneCode"></p>
+      <button class="btn btn-block" id="phoneOffBtn" type="button">Turn off phone access</button>
+      <p class="hint">Turning it off signs out every phone.</p>
+    </div>
+    <p class="problem" id="phoneError" hidden></p>
+  </dialog>
+
+  <div class="pair" id="pairScreen" hidden>
+    <form class="card pair-card" id="pairForm">
+      <img src="icon.svg" alt="" width="56" height="56">
+      <h1>Connect to your Mac</h1>
+      <p>Type the 6-digit code shown in web2app on the Mac.</p>
+      <input id="pairCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" aria-label="6-digit code" required>
+      <p class="problem" id="pairError" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit">Connect</button>
+    </form>
+  </div>
+</body>
+</html>

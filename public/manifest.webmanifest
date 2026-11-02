@@ -1,0 +1,14 @@
+{
+  "name": "web2app",
+  "short_name": "web2app",
+  "description": "Turn any website or your own HTML files into a small Mac app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F4ED",
+  "theme_color": "#1C5D33",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

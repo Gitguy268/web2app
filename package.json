@@ -1,0 +1,14 @@
+{
+  "name": "web2app",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "postinstall": "sh scripts/link-tauri.sh"
+  },
+  "dependencies": {
+    "pake-cli": "3.17.5"
+  }
+}
