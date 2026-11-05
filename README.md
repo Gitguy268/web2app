@@ -12,6 +12,15 @@ Builds run one at a time from a queue, each build is kept in a history you can r
 **Project page:** [gitguy268.github.io/web2app](https://gitguy268.github.io/web2app/) · [web2app-neon.vercel.app](https://web2app-neon.vercel.app)
 <!-- /live-links -->
 
+## Install with Homebrew
+
+```sh
+brew trust gitguy268/tap
+brew install gitguy268/tap/web2app
+```
+
+Then run `web2app` and open <http://localhost:7417/>. Builds are kept in `~/Library/Application Support/web2app` (set `WEB2APP_BUILDS` to move them). Pake also needs [Rust](https://rustup.rs).
+
 <!-- run-steps:start -->
 ## Run it locally, step by step
 
