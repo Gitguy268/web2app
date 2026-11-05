@@ -10,6 +10,6 @@
     "postinstall": "sh scripts/link-tauri.sh"
   },
   "dependencies": {
-    "pake-cli": "3.17.5"
+    "pake-cli": "3.17.8"
   }
 }
