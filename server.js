@@ -10,7 +10,8 @@ import { toArgs } from './public/options.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(ROOT, 'public');
-const BUILDS = path.join(ROOT, 'builds');
+// WEB2APP_BUILDS moves the builds and their history out of the app folder (the Homebrew install sets it).
+const BUILDS = process.env.WEB2APP_BUILDS ? path.resolve(process.env.WEB2APP_BUILDS) : path.join(ROOT, 'builds');
 const PAKE = path.join(ROOT, 'node_modules', '.bin', 'pake');
 const CACHE_LOCK = path.join(ROOT, 'node_modules', 'pake-cli', 'src-tauri', 'target', '.pake-build.lock');
 const PORT = Number(process.env.PORT) || 7417;
